@@ -2,8 +2,7 @@ const gameContainer = document.getElementById('gameContainer');
 const character = document.getElementById('character');
 const scoreElement = document.getElementById('score');
 const timerElement = document.getElementById('timer');
-const leaderboardElement = document.getElementById('leaderboard');
-const restartButton = document.getElementById('restartButton');
+const startButton = document.getElementById('startButton');
 
 let score = 0;
 let characterWidth = 50;
@@ -12,7 +11,6 @@ let characterSpeed = 20;
 let gameInterval;
 let timerInterval;
 let timeLeft = 60;
-let db = firebase.firestore();
 
 document.addEventListener('touchstart', handleTouch);
 document.addEventListener('touchmove', handleTouch);
@@ -119,8 +117,7 @@ function startGame() {
     timeLeft = 60;
     scoreElement.innerText = `Score: ${score}`;
     timerElement.innerText = `Time: ${timeLeft}s`;
-    leaderboardElement.classList.add('hidden');
-    restartButton.classList.add('hidden');
+    startButton.classList.add('hidden');
     character.style.left = '50%';
     character.style.top = '50%';
     gameInterval = setInterval(spawnHotdog, 2000);
@@ -139,40 +136,10 @@ function updateTimer() {
 function endGame() {
     clearInterval(gameInterval);
     clearInterval(timerInterval);
-    const playerName = prompt('Game Over! Enter your name:');
-    if (playerName) {
-        saveScore(playerName, score);
-    }
-}
-
-function saveScore(name, score) {
-    db.collection("leaderboard").add({
-        name: name,
-        score: score,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
-        displayLeaderboard();
-    });
-}
-
-function displayLeaderboard() {
-    db.collection("leaderboard")
-        .orderBy("score", "desc")
-        .limit(5)
-        .get()
-        .then((querySnapshot) => {
-            leaderboardElement.innerHTML = '<h2>Leaderboard</h2>';
-            querySnapshot.forEach((doc) => {
-                const entry = doc.data();
-                const entryElement = document.createElement('div');
-                entryElement.innerText = `${entry.name}: ${entry.score}`;
-                leaderboardElement.appendChild(entryElement);
-            });
-            leaderboardElement.classList.remove('hidden');
-            restartButton.classList.remove('hidden');
-        });
+    alert('Game Over! Your score is: ' + score);
+    startButton.classList.remove('hidden');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    startGame();
+    startButton.classList.remove('hidden');
 });
