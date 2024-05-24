@@ -84,16 +84,9 @@ function spawnHotdog() {
 function moveHotdog(hotdog) {
     let hotdogInterval = setInterval(() => {
         const hotdogTop = parseInt(hotdog.style.top);
-        if (hotdogTop > window.innerHeight - characterHeight) {
-            if (isCatch(hotdog)) {
-                score++;
-                scoreElement.innerText = `Score: ${score}`;
-                hotdog.remove();
-                clearInterval(hotdogInterval);
-            } else if (hotdogTop > window.innerHeight) {
-                hotdog.remove();
-                clearInterval(hotdogInterval);
-            }
+        if (hotdogTop > window.innerHeight) {
+            hotdog.remove();
+            clearInterval(hotdogInterval);
         } else {
             hotdog.style.top = `${hotdogTop + 5}px`;
             if (isCatch(hotdog)) {
@@ -123,7 +116,7 @@ function startGame() {
     timeLeft = 60;
     scoreElement.innerText = `Score: ${score}`;
     timerElement.innerText = `Time: ${timeLeft}s`;
-    startButton.classList.add('hidden');
+    startButton.style.display = 'none';
     character.style.left = '50%';
     character.style.top = '50%';
     gameInterval = setInterval(spawnHotdog, 2000);
@@ -143,9 +136,9 @@ function endGame() {
     clearInterval(gameInterval);
     clearInterval(timerInterval);
     alert('Game Over! Your score is: ' + score);
-    startButton.classList.remove('hidden');
+    startButton.style.display = 'block';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    startButton.classList.remove('hidden');
+    startButton.style.display = 'block';
 });
