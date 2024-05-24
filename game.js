@@ -40,7 +40,7 @@ function spawnHotdog() {
 function moveHotdog(hotdog) {
     let hotdogInterval = setInterval(() => {
         const hotdogTop = parseInt(hotdog.style.top);
-        if (hotdogTop > window.innerHeight - 60) {
+        if (hotdogTop > window.innerHeight - 150) {
             if (isCatch(hotdog)) {
                 score++;
                 scoreElement.innerText = `Score: ${score}`;
