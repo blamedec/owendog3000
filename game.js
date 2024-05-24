@@ -102,7 +102,7 @@ function moveHotdog(hotdog) {
                 if (spawnInterval > 500) {
                     spawnInterval -= 150; // Decrease spawn interval more significantly
                 }
-                fallSpeed += 1; // Increase the fall speed more aggressively
+                fallSpeed += 2; // Increase the fall speed more aggressively
 
                 // Update the spawn interval
                 clearInterval(gameInterval);
