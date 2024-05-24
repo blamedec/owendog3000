@@ -1,14 +1,21 @@
 const gameContainer = document.getElementById('gameContainer');
 const character = document.getElementById('character');
 const scoreElement = document.getElementById('score');
+const timerElement = document.getElementById('timer');
+const leaderboardElement = document.getElementById('leaderboard');
 
 let score = 0;
 let characterWidth = 50;  // Width of the character
 let characterHeight = 50; // Height of the character
-let characterDirection = 'right';
+let characterSpeed = 20;  // Speed at which the character moves when an arrow key is pressed
+let gameInterval;
+let timerInterval;
+let timeLeft = 60;
+let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
 
 document.addEventListener('touchstart', handleTouch);
 document.addEventListener('touchmove', handleTouch);
+document.addEventListener('keydown', handleKeyDown);
 
 function handleTouch(event) {
     const touch = event.touches[0];
@@ -26,6 +33,26 @@ function handleTouch(event) {
 
     // Update the character's position
     character.style.left = `${newLeft}px`;
+}
+
+function handleKeyDown(event) {
+    const left = parseInt(character.style.left || '50%');
+    
+    if (event.key === 'ArrowLeft') {
+        // Move character to the left
+        let newLeft = left - characterSpeed;
+        if (newLeft < 0) {
+            newLeft = 0;
+        }
+        character.style.left = `${newLeft}px`;
+    } else if (event.key === 'ArrowRight') {
+        // Move character to the right
+        let newLeft = left + characterSpeed;
+        if (newLeft > window.innerWidth - characterWidth) {
+            newLeft = window.innerWidth - characterWidth;
+        }
+        character.style.left = `${newLeft}px`;
+    }
 }
 
 function spawnHotdog() {
@@ -66,4 +93,44 @@ function isCatch(hotdog) {
     );
 }
 
-setInterval(spawnHotdog, 2000);
+function startGame() {
+    score = 0;
+    timeLeft = 60;
+    scoreElement.innerText = `Score: ${score}`;
+    timerElement.innerText = `Time: ${timeLeft}s`;
+    gameInterval = setInterval(spawnHotdog, 2000);
+    timerInterval = setInterval(updateTimer, 1000);
+}
+
+function updateTimer() {
+    timeLeft--;
+    timerElement.innerText = `Time: ${timeLeft}s`;
+
+    if (timeLeft <= 0) {
+        endGame();
+    }
+}
+
+function endGame() {
+    clearInterval(gameInterval);
+    clearInterval(timerInterval);
+    const playerName = prompt('Game Over! Enter your name:');
+    leaderboard.push({ name: playerName, score: score });
+    leaderboard.sort((a, b) => b.score - a.score);
+    localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+    displayLeaderboard();
+}
+
+function displayLeaderboard() {
+    leaderboardElement.innerHTML = '<h2>Leaderboard</h2>';
+    leaderboard.forEach(entry => {
+        const entryElement = document.createElement('div');
+        entryElement.innerText = `${entry.name}: ${entry.score}`;
+        leaderboardElement.appendChild(entryElement);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    displayLeaderboard();
+    startGame();
+});
