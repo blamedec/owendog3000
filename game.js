@@ -72,9 +72,12 @@ function moveHotdog(hotdog) {
             if (isCatch(hotdog)) {
                 score++;
                 scoreElement.innerText = `Score: ${score}`;
+                hotdog.remove();
+                clearInterval(hotdogInterval);
+            } else if (hotdogTop > window.innerHeight - 30) { // Remove hotdogs that fall off screen
+                hotdog.remove();
+                clearInterval(hotdogInterval);
             }
-            hotdog.remove();
-            clearInterval(hotdogInterval);
         } else {
             hotdog.style.top = `${hotdogTop + 5}px`;
         }
@@ -115,9 +118,11 @@ function endGame() {
     clearInterval(gameInterval);
     clearInterval(timerInterval);
     const playerName = prompt('Game Over! Enter your name:');
-    leaderboard.push({ name: playerName, score: score });
-    leaderboard.sort((a, b) => b.score - a.score);
-    localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+    if (playerName) {
+        leaderboard.push({ name: playerName, score: score });
+        leaderboard.sort((a, b) => b.score - a.score);
+        localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+    }
     displayLeaderboard();
 }
 
