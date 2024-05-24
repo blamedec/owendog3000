@@ -11,8 +11,27 @@
         <div id="character"></div>
         <div id="score">Score: 0</div>
         <div id="timer">Time: 60s</div>
-        <div id="leaderboard"></div>
+        <div id="leaderboard" class="hidden"></div>
+        <button id="restartButton" class="hidden" onclick="startGame()">Catch More Dogs Owen</button>
     </div>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+    <script>
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD9B_JKpUrgUF9U2oCz8tIsj1kzuKgbudI",
+            authDomain: "owendog3000.firebaseapp.com",
+            projectId: "owendog3000",
+            storageBucket: "owendog3000.appspot.com",
+            messagingSenderId: "160906133084",
+            appId: "1:160906133084:web:cd3b800ebc314053b57099",
+            measurementId: "G-MM3GWYNHW9"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script>
     <script src="game.js"></script>
 </body>
 </html>
