@@ -96,6 +96,12 @@ function moveHotdog(hotdog) {
             }
         } else {
             hotdog.style.top = `${hotdogTop + 5}px`;
+            if (isCatch(hotdog)) {
+                score++;
+                scoreElement.innerText = `Score: ${score}`;
+                hotdog.remove();
+                clearInterval(hotdogInterval);
+            }
         }
     }, 100);
 }
