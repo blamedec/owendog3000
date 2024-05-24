@@ -84,13 +84,14 @@ function spawnHotdog() {
 }
 
 function moveHotdog(hotdog) {
+    let hotdogFallSpeed = fallSpeed + Math.random() * 3; // Add variability to fall speed
     let hotdogInterval = setInterval(() => {
         const hotdogTop = parseInt(hotdog.style.top);
         if (hotdogTop > window.innerHeight) {
             hotdog.remove();
             clearInterval(hotdogInterval);
         } else {
-            hotdog.style.top = `${hotdogTop + fallSpeed}px`;
+            hotdog.style.top = `${hotdogTop + hotdogFallSpeed}px`;
             if (isCatch(hotdog)) {
                 score++;
                 scoreElement.innerText = `Score: ${score}`;
@@ -99,9 +100,9 @@ function moveHotdog(hotdog) {
 
                 // Increase difficulty
                 if (spawnInterval > 500) {
-                    spawnInterval -= 100; // Decrease spawn interval to make hotdogs spawn faster
+                    spawnInterval -= 150; // Decrease spawn interval more significantly
                 }
-                fallSpeed += 0.5; // Increase the fall speed of hotdogs
+                fallSpeed += 1; // Increase the fall speed more aggressively
 
                 // Update the spawn interval
                 clearInterval(gameInterval);
