@@ -10,6 +10,8 @@ let characterHeight = 50;
 let characterSpeed = 20;
 let gameInterval;
 let timerInterval;
+let spawnInterval = 2000; // Initial spawn interval
+let fallSpeed = 5; // Initial fall speed
 let timeLeft = 60;
 
 document.addEventListener('touchstart', handleTouch);
@@ -88,12 +90,22 @@ function moveHotdog(hotdog) {
             hotdog.remove();
             clearInterval(hotdogInterval);
         } else {
-            hotdog.style.top = `${hotdogTop + 5}px`;
+            hotdog.style.top = `${hotdogTop + fallSpeed}px`;
             if (isCatch(hotdog)) {
                 score++;
                 scoreElement.innerText = `Score: ${score}`;
                 hotdog.remove();
                 clearInterval(hotdogInterval);
+
+                // Increase difficulty
+                if (spawnInterval > 500) {
+                    spawnInterval -= 100; // Decrease spawn interval to make hotdogs spawn faster
+                }
+                fallSpeed += 0.5; // Increase the fall speed of hotdogs
+
+                // Update the spawn interval
+                clearInterval(gameInterval);
+                gameInterval = setInterval(spawnHotdog, spawnInterval);
             }
         }
     }, 100);
@@ -114,12 +126,14 @@ function isCatch(hotdog) {
 function startGame() {
     score = 0;
     timeLeft = 60;
+    spawnInterval = 2000; // Reset spawn interval
+    fallSpeed = 5; // Reset fall speed
     scoreElement.innerText = `Score: ${score}`;
     timerElement.innerText = `Time: ${timeLeft}s`;
     startButton.style.display = 'none';
     character.style.left = '50%';
     character.style.top = '50%';
-    gameInterval = setInterval(spawnHotdog, 2000);
+    gameInterval = setInterval(spawnHotdog, spawnInterval);
     timerInterval = setInterval(updateTimer, 1000);
 }
 
