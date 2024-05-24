@@ -3,15 +3,16 @@ const character = document.getElementById('character');
 const scoreElement = document.getElementById('score');
 const timerElement = document.getElementById('timer');
 const leaderboardElement = document.getElementById('leaderboard');
+const restartButton = document.getElementById('restartButton');
 
 let score = 0;
-let characterWidth = 50;  // Width of the character
-let characterHeight = 50; // Height of the character
-let characterSpeed = 20;  // Speed at which the character moves when an arrow key is pressed
+let characterWidth = 50;
+let characterHeight = 50;
+let characterSpeed = 20;
 let gameInterval;
 let timerInterval;
 let timeLeft = 60;
-let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+let db = firebase.firestore();
 
 document.addEventListener('touchstart', handleTouch);
 document.addEventListener('touchmove', handleTouch);
@@ -20,45 +21,62 @@ document.addEventListener('keydown', handleKeyDown);
 function handleTouch(event) {
     const touch = event.touches[0];
     const touchX = touch.clientX;
+    const touchY = touch.clientY;
     
-    // Calculate the new position for the character
     let newLeft = touchX - characterWidth / 2;
+    let newTop = touchY - characterHeight / 2;
     
-    // Ensure the character stays within the game boundaries
     if (newLeft < 0) {
         newLeft = 0;
     } else if (newLeft > window.innerWidth - characterWidth) {
         newLeft = window.innerWidth - characterWidth;
     }
 
-    // Update the character's position
+    if (newTop < 0) {
+        newTop = 0;
+    } else if (newTop > window.innerHeight - characterHeight) {
+        newTop = window.innerHeight - characterHeight;
+    }
+
     character.style.left = `${newLeft}px`;
+    character.style.top = `${newTop}px`;
 }
 
 function handleKeyDown(event) {
     const left = parseInt(character.style.left || '50%');
+    const top = parseInt(character.style.top || '50%');
     
     if (event.key === 'ArrowLeft') {
-        // Move character to the left
         let newLeft = left - characterSpeed;
         if (newLeft < 0) {
             newLeft = 0;
         }
         character.style.left = `${newLeft}px`;
     } else if (event.key === 'ArrowRight') {
-        // Move character to the right
         let newLeft = left + characterSpeed;
         if (newLeft > window.innerWidth - characterWidth) {
             newLeft = window.innerWidth - characterWidth;
         }
         character.style.left = `${newLeft}px`;
+    } else if (event.key === 'ArrowUp') {
+        let newTop = top - characterSpeed;
+        if (newTop < 0) {
+            newTop = 0;
+        }
+        character.style.top = `${newTop}px`;
+    } else if (event.key === 'ArrowDown') {
+        let newTop = top + characterSpeed;
+        if (newTop > window.innerHeight - characterHeight) {
+            newTop = window.innerHeight - characterHeight;
+        }
+        character.style.top = `${newTop}px`;
     }
 }
 
 function spawnHotdog() {
     const hotdog = document.createElement('div');
     hotdog.classList.add('hotdog');
-    hotdog.style.left = `${Math.random() * (window.innerWidth - 30)}px`; // Adjust based on hotdog width
+    hotdog.style.left = `${Math.random() * (window.innerWidth - 30)}px`;
     hotdog.style.top = '0px';
     gameContainer.appendChild(hotdog);
 
@@ -68,13 +86,13 @@ function spawnHotdog() {
 function moveHotdog(hotdog) {
     let hotdogInterval = setInterval(() => {
         const hotdogTop = parseInt(hotdog.style.top);
-        if (hotdogTop > window.innerHeight - characterHeight - 150) { // Adjust this value to match the new bottom value
+        if (hotdogTop > window.innerHeight - characterHeight) {
             if (isCatch(hotdog)) {
                 score++;
                 scoreElement.innerText = `Score: ${score}`;
                 hotdog.remove();
                 clearInterval(hotdogInterval);
-            } else if (hotdogTop > window.innerHeight - 30) { // Remove hotdogs that fall off screen
+            } else if (hotdogTop > window.innerHeight) {
                 hotdog.remove();
                 clearInterval(hotdogInterval);
             }
@@ -101,6 +119,10 @@ function startGame() {
     timeLeft = 60;
     scoreElement.innerText = `Score: ${score}`;
     timerElement.innerText = `Time: ${timeLeft}s`;
+    leaderboardElement.classList.add('hidden');
+    restartButton.classList.add('hidden');
+    character.style.left = '50%';
+    character.style.top = '50%';
     gameInterval = setInterval(spawnHotdog, 2000);
     timerInterval = setInterval(updateTimer, 1000);
 }
@@ -119,23 +141,38 @@ function endGame() {
     clearInterval(timerInterval);
     const playerName = prompt('Game Over! Enter your name:');
     if (playerName) {
-        leaderboard.push({ name: playerName, score: score });
-        leaderboard.sort((a, b) => b.score - a.score);
-        localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+        saveScore(playerName, score);
     }
-    displayLeaderboard();
 }
 
-function displayLeaderboard() {
-    leaderboardElement.innerHTML = '<h2>Leaderboard</h2>';
-    leaderboard.forEach(entry => {
-        const entryElement = document.createElement('div');
-        entryElement.innerText = `${entry.name}: ${entry.score}`;
-        leaderboardElement.appendChild(entryElement);
+function saveScore(name, score) {
+    db.collection("leaderboard").add({
+        name: name,
+        score: score,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+        displayLeaderboard();
     });
 }
 
+function displayLeaderboard() {
+    db.collection("leaderboard")
+        .orderBy("score", "desc")
+        .limit(5)
+        .get()
+        .then((querySnapshot) => {
+            leaderboardElement.innerHTML = '<h2>Leaderboard</h2>';
+            querySnapshot.forEach((doc) => {
+                const entry = doc.data();
+                const entryElement = document.createElement('div');
+                entryElement.innerText = `${entry.name}: ${entry.score}`;
+                leaderboardElement.appendChild(entryElement);
+            });
+            leaderboardElement.classList.remove('hidden');
+            restartButton.classList.remove('hidden');
+        });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    displayLeaderboard();
     startGame();
 });
