@@ -4,6 +4,7 @@ const scoreElement = document.getElementById('score');
 
 let score = 0;
 let characterWidth = 50;  // Width of the character
+let characterHeight = 50; // Height of the character
 let characterDirection = 'right';
 
 document.addEventListener('touchstart', handleTouch);
@@ -40,7 +41,7 @@ function spawnHotdog() {
 function moveHotdog(hotdog) {
     let hotdogInterval = setInterval(() => {
         const hotdogTop = parseInt(hotdog.style.top);
-        if (hotdogTop > window.innerHeight - 150) {
+        if (hotdogTop > window.innerHeight - characterHeight - 150) { // Adjust this value to match the new bottom value
             if (isCatch(hotdog)) {
                 score++;
                 scoreElement.innerText = `Score: ${score}`;
